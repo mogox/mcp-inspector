@@ -1,0 +1,28 @@
+{
+  "servers": [
+    {
+      "name": "filesystem-server",
+      "transport": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem"],
+      "args": ["/tmp"],
+      "env": {}
+    },
+    {
+      "name": "github-server",
+      "transport": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    {
+      "name": "http-server",
+      "transport": "sse",
+      "url": "http://localhost:8080/sse"
+    }
+  ],
+  "defaults": {
+    "output": "json",
+    "pretty": true
+  }
+}

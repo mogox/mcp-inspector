@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative "../lib/mcp_inspector"
+
+begin
+  MCPInspector::CLI.start(ARGV)
+rescue Interrupt
+  puts "\nInterrupted"
+  exit(130)
+rescue => e
+  warn "Error: #{e.message}"
+  exit(1)
+end
