@@ -1,0 +1,143 @@
+<div class="px-4 sm:px-0">
+  <% if @config_error %>
+    <div class="rounded-md bg-red-50 p-4 mb-6">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">Configuration Error</h3>
+          <div class="mt-2 text-sm text-red-700">
+            <p><%= @config_error %></p>
+            <p class="mt-2">Please create a configuration file at <code class="bg-red-100 px-1 rounded">~/.mcp-inspector.json</code></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% elsif @servers.empty? %>
+    <div class="rounded-md bg-yellow-50 p-4 mb-6">
+      <div class="flex">
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-yellow-800">No Servers Configured</h3>
+          <div class="mt-2 text-sm text-yellow-700">
+            <p>No MCP servers found in configuration. Please add servers to your configuration file.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left Panel: Server Selection & Operations -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- Server Selection -->
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-4">Select Server</h2>
+          <select id="server-select" class="input-field" data-turbo-frame="server-controls">
+            <% @servers.each do |name, config| %>
+              <option value="<%= name %>" <%= 'selected' if name == @selected_server %>><%= name %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <!-- Server Info -->
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-4">Server Info</h2>
+          <button data-server="<%= @selected_server %>"
+                  data-action="get-info"
+                  class="btn-primary w-full">
+            Get Server Info
+          </button>
+        </div>
+
+        <!-- Operations -->
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-4">List Operations</h2>
+          <div class="space-y-3">
+            <button data-server="<%= @selected_server %>"
+                    data-action="list-tools"
+                    class="btn-secondary w-full">
+              List Tools
+            </button>
+            <button data-server="<%= @selected_server %>"
+                    data-action="list-prompts"
+                    class="btn-secondary w-full">
+              List Prompts
+            </button>
+            <button data-server="<%= @selected_server %>"
+                    data-action="list-resources"
+                    class="btn-secondary w-full">
+              List Resources
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Results -->
+      <div class="lg:col-span-2">
+        <div class="card">
+          <h2 class="text-lg font-semibold mb-4">Response</h2>
+          <%= turbo_frame_tag "response_area" do %>
+            <div class="text-gray-500 text-center py-12">
+              Select a server and perform an operation to see results here.
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener('turbo:load', function() {
+    const serverSelect = document.getElementById('server-select');
+    if (serverSelect) {
+      serverSelect.addEventListener('change', function() {
+        const selectedServer = this.value;
+        // Update all buttons with the new server
+        document.querySelectorAll('[data-server]').forEach(btn => {
+          btn.dataset.server = selectedServer;
+        });
+      });
+    }
+
+    // Handle button clicks
+    document.addEventListener('click', function(e) {
+      const action = e.target.dataset.action;
+      const server = e.target.dataset.server;
+
+      if (!action || !server) return;
+
+      const responseArea = document.getElementById('response_area');
+      responseArea.innerHTML = '<div class="text-gray-500 text-center py-12">Loading...</div>';
+
+      let url;
+      switch(action) {
+        case 'get-info':
+          url = `/mcp_inspector/servers/${server}/info`;
+          break;
+        case 'list-tools':
+          url = `/mcp_inspector/servers/${server}/tools`;
+          break;
+        case 'list-prompts':
+          url = `/mcp_inspector/servers/${server}/prompts`;
+          break;
+        case 'list-resources':
+          url = `/mcp_inspector/servers/${server}/resources`;
+          break;
+        default:
+          return;
+      }
+
+      fetch(url, {
+        headers: {
+          'Accept': 'text/vnd.turbo-stream.html',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        }
+      })
+      .then(response => response.text())
+      .then(html => {
+        Turbo.renderStreamMessage(html);
+      })
+      .catch(error => {
+        responseArea.innerHTML = `<div class="text-red-500">Error: ${error.message}</div>`;
+      });
+    });
+  });
+</script>

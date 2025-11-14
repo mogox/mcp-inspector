@@ -4,7 +4,7 @@ require "json"
 require "pathname"
 require "fileutils"
 
-module MCPInspector
+module McpInspector
   module Data
     class ConfigManager
       class ConfigError < Error; end
@@ -180,9 +180,9 @@ module MCPInspector
         
         @config["servers"].each do |server_hash|
           begin
-            server_config = MCPInspector::Transport::ServerConfig.new(server_hash)
+            server_config = McpInspector::Transport::ServerConfig.new(server_hash)
             server_configs[server_config.name] = server_config
-          rescue MCPInspector::Transport::ServerConfig::ValidationError => e
+          rescue McpInspector::Transport::ServerConfig::ValidationError => e
             raise ConfigError, "Invalid server configuration: #{e.message}"
           end
         end

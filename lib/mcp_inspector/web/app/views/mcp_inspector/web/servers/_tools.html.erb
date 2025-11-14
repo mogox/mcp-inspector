@@ -1,0 +1,65 @@
+<div class="space-y-4">
+  <div class="border-b border-gray-200 pb-2">
+    <h3 class="text-md font-semibold text-gray-900">Available Tools (<%= tools.length %>)</h3>
+  </div>
+
+  <% if tools.empty? %>
+    <div class="text-gray-500 text-center py-8">
+      No tools available on this server.
+    </div>
+  <% else %>
+    <div class="space-y-4">
+      <% tools.each do |tool| %>
+        <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+          <div class="flex justify-between items-start mb-2">
+            <h4 class="text-sm font-semibold text-gray-900"><%= tool["name"] %></h4>
+            <button onclick="expandTool('<%= tool["name"] %>')"
+                    class="text-xs text-blue-600 hover:text-blue-800">
+              Execute
+            </button>
+          </div>
+
+          <% if tool["description"] %>
+            <p class="text-sm text-gray-600 mb-3"><%= tool["description"] %></p>
+          <% end %>
+
+          <% if tool["inputSchema"] %>
+            <details class="mb-3">
+              <summary class="text-xs text-gray-500 cursor-pointer hover:text-gray-700">View Input Schema</summary>
+              <pre class="mt-2 bg-gray-50 rounded p-2 text-xs overflow-x-auto"><%= JSON.pretty_generate(tool["inputSchema"]) %></pre>
+            </details>
+          <% end %>
+
+          <div id="execute-<%= tool["name"] %>" class="hidden mt-3 pt-3 border-t border-gray-200">
+            <form data-turbo-frame="response_area" action="/mcp_inspector/operations/execute_tool" method="post" class="space-y-3">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <%= hidden_field_tag :server_name, server_name %>
+              <%= hidden_field_tag :tool_name, tool["name"] %>
+
+              <div>
+                <label class="label" for="arguments-<%= tool["name"] %>">Arguments (JSON)</label>
+                <textarea name="arguments"
+                          id="arguments-<%= tool["name"] %>"
+                          class="input-field font-mono text-xs"
+                          rows="4"
+                          placeholder='{"key": "value"}'></textarea>
+                <p class="mt-1 text-xs text-gray-500">Enter tool arguments as JSON</p>
+              </div>
+
+              <button type="submit" class="btn-primary w-full">Execute Tool</button>
+            </form>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function expandTool(toolName) {
+    const element = document.getElementById('execute-' + toolName);
+    if (element) {
+      element.classList.toggle('hidden');
+    }
+  }
+</script>

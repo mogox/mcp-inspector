@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MCPInspector
+module McpInspector
   module Presentation
     class BaseFormatter
       def initialize(pretty: true)

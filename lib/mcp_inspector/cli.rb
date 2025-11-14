@@ -10,7 +10,7 @@ require_relative "transport/server_config"
 require_relative "presentation/base_formatter"
 require_relative "presentation/json_formatter"
 
-module MCPInspector
+module McpInspector
   class CLI < Thor
     class << self
       def exit_on_failure?
@@ -48,7 +48,7 @@ module MCPInspector
     option :args, type: :string, desc: "JSON arguments for the tool", default: "{}"
     def execute(tool_name)
       with_server_connection do |adapter, output_adapter|
-        input_adapter = MCPInspector::Data::InputAdapter.new
+        input_adapter = McpInspector::Data::InputAdapter.new
         input_adapter.validate_tool_name!(tool_name)
         
         arguments = input_adapter.parse_json_arguments(options[:args])
@@ -64,7 +64,7 @@ module MCPInspector
     desc "read RESOURCE_URI", "Read a resource from the MCP server"
     def read(resource_uri)
       with_server_connection do |adapter, output_adapter|
-        input_adapter = MCPInspector::Data::InputAdapter.new
+        input_adapter = McpInspector::Data::InputAdapter.new
         input_adapter.validate_resource_uri!(resource_uri)
         
         content = adapter.read_resource(resource_uri)
@@ -80,7 +80,7 @@ module MCPInspector
     option :args, type: :string, desc: "JSON arguments for the prompt", default: "{}"
     def prompt(prompt_name)
       with_server_connection do |adapter, output_adapter|
-        input_adapter = MCPInspector::Data::InputAdapter.new
+        input_adapter = McpInspector::Data::InputAdapter.new
         input_adapter.validate_prompt_name!(prompt_name)
         
         arguments = input_adapter.parse_json_arguments(options[:args])
@@ -136,7 +136,7 @@ module MCPInspector
       config_manager = load_config_manager
       server_config = config_manager.find_server(options[:server])
       
-      adapter = MCPInspector::Transport::ClientAdapter.new
+      adapter = McpInspector::Transport::ClientAdapter.new
       output_adapter = create_output_adapter
       
       begin
@@ -148,8 +148,8 @@ module MCPInspector
     end
 
     def load_config_manager
-      MCPInspector::Data::ConfigManager.new(config_path: options[:config])
-    rescue MCPInspector::Data::ConfigManager::ConfigError => e
+      McpInspector::Data::ConfigManager.new(config_path: options[:config])
+    rescue McpInspector::Data::ConfigManager::ConfigError => e
       if e.message.include?("No configuration file found")
         suggest_config_creation
       end
@@ -162,7 +162,7 @@ module MCPInspector
     end
 
     def create_output_adapter
-      MCPInspector::Data::OutputAdapter.new(
+      McpInspector::Data::OutputAdapter.new(
         format: options[:output],
         pretty: @pretty_print
       )
@@ -242,14 +242,14 @@ module MCPInspector
     end
 
     def config_init(path = nil)
-      path ||= MCPInspector::Data::ConfigManager::DEFAULT_USER_CONFIG_PATH
+      path ||= McpInspector::Data::ConfigManager::DEFAULT_USER_CONFIG_PATH
       
       if File.exist?(path)
         warn "Configuration file already exists: #{path}"
         exit(1)
       end
       
-      created_path = MCPInspector::Data::ConfigManager.create_example_config(path)
+      created_path = McpInspector::Data::ConfigManager.create_example_config(path)
       puts "Created example configuration file: #{created_path}"
       puts "Edit this file to configure your MCP servers."
     end

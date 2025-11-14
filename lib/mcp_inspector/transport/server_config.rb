@@ -2,7 +2,7 @@
 
 require "json"
 
-module MCPInspector
+module McpInspector
   module Transport
     class ServerConfig
       class ValidationError < Error; end
@@ -105,14 +105,14 @@ module MCPInspector
         @name = raw_config["name"]
         @transport = raw_config["transport"]
         @command = parse_command(raw_config["command"]) if raw_config["command"]
-        @args = raw_config["args"] || []
+        @args = expand_array_env_variables(raw_config["args"] || [])
         @env = parse_env(raw_config["env"] || {})
-        @working_directory = raw_config["working_directory"] || "."
+        @working_directory = expand_env_variable(raw_config["working_directory"] || ".")
         @url = raw_config["url"] if raw_config["url"]
       end
 
       def parse_command(command)
-        case command
+        cmd_array = case command
         when Array
           command
         when String
@@ -120,6 +120,15 @@ module MCPInspector
         else
           raise ValidationError, "Command must be a string or array of strings"
         end
+
+        # Expand environment variables in command
+        expand_array_env_variables(cmd_array)
+      end
+
+      def expand_array_env_variables(array)
+        return [] unless array.is_a?(Array)
+
+        array.map { |value| expand_env_variable(value) }
       end
 
       def parse_env(env_hash)
@@ -131,10 +140,22 @@ module MCPInspector
       def expand_env_variable(value)
         return value unless value.is_a?(String)
 
-        value.gsub(/\$\{([^}]+)\}/) do |match|
+        # Expand ${VAR} and $VAR style variables
+        result = value.dup
+
+        # First expand ${VAR} style
+        result = result.gsub(/\$\{([^}]+)\}/) do |match|
           env_var = ::Regexp.last_match(1)
           ENV[env_var] || match
         end
+
+        # Then expand $VAR style (but not ${VAR} which was already handled)
+        result = result.gsub(/\$([A-Z_][A-Z0-9_]*)/i) do |match|
+          env_var = ::Regexp.last_match(1)
+          ENV[env_var] || match
+        end
+
+        result
       end
     end
   end

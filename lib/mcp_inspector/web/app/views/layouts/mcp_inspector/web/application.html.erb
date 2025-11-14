@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html class="h-full bg-gray-100">
+<head>
+  <title>MCP Inspector</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <%= javascript_include_tag "turbo", type: "module" %>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .btn-primary {
+        @apply bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+      }
+
+      .btn-secondary {
+        @apply bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors;
+      }
+
+      .card {
+        @apply bg-white shadow rounded-lg p-6;
+      }
+
+      .input-field {
+        @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border;
+      }
+
+      .label {
+        @apply block text-sm font-medium text-gray-700;
+      }
+    }
+  </style>
+</head>
+
+<body class="h-full">
+  <div class="min-h-full">
+    <nav class="bg-gray-800">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <h1 class="text-white text-xl font-bold">MCP Inspector</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <header class="bg-white shadow">
+      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">MCP Server Inspector</h1>
+      </div>
+    </header>
+
+    <main>
+      <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+        <%= yield %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

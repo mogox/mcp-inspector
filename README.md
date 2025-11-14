@@ -6,9 +6,10 @@ A Ruby gem that provides a command-line tool for connecting to and inspecting MC
 
 - **Multi-transport support**: Connect to MCP servers via stdio, SSE, or WebSocket
 - **Command-based CLI**: Execute operations without persistent sessions
+- **Web Interface**: Rails Engine for browser-based MCP server inspection
 - **JSON configuration**: Configure multiple servers in a single JSON file
 - **Structured output**: All output in JSON format for easy parsing and automation
-- **Three-layer architecture**: Designed for future web adaptation
+- **Three-layer architecture**: Designed for both CLI and web interfaces
 
 ## Installation
 
@@ -224,15 +225,54 @@ mcp-inspector list resources --server github-server
 mcp-inspector execute search_repositories --server github-server --args '{"query": "ruby mcp"}'
 ```
 
+## Web Interface
+
+MCP Inspector includes a Rails Engine for browser-based inspection of MCP servers. The web interface provides:
+
+- Interactive server selection and operation execution
+- Real-time updates using Hotwire/Turbo Streams
+- Modern UI with Tailwind CSS
+- Easy mounting in existing Rails applications
+
+### Quick Setup
+
+1. Add to your Rails app's `config/routes.rb`:
+
+```ruby
+mount McpInspector::Web::Engine, at: '/mcp_inspector'
+```
+
+2. Require the web engine in `config/application.rb`:
+
+```ruby
+require 'mcp_inspector_web'
+```
+
+3. Start your Rails server and visit `/mcp_inspector`
+
+### Demo Application
+
+A complete working demo is available in the `inspector/` directory:
+
+```bash
+cd inspector
+bin/start
+# Visit http://localhost:3000
+```
+
+For detailed documentation:
+- Web interface: [WEB_README.md](WEB_README.md)
+- Demo application: [inspector/README.md](inspector/README.md)
+
 ## Architecture
 
 The gem uses a three-layer architecture:
 
 1. **Transport Layer**: Handles connections to MCP servers
-2. **Data Layer**: Manages configuration and input/output processing  
-3. **Presentation Layer**: Formats output for display
+2. **Data Layer**: Manages configuration and input/output processing
+3. **Presentation Layer**: Formats output for display (CLI and Web)
 
-This design makes it easy to add new output formats or adapt for web interfaces in the future.
+This design makes it easy to add new output formats and provides both CLI and web interfaces using the same core functionality.
 
 ## Development
 
