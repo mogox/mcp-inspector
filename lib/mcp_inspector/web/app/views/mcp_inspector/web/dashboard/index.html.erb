@@ -139,5 +139,99 @@
         responseArea.innerHTML = `<div class="text-red-500">Error: ${error.message}</div>`;
       });
     });
+
+    // MCP UI Protocol: Handle postMessage from iframes
+    window.addEventListener('message', function(event) {
+      // Security: Validate the message structure
+      if (!event.data || typeof event.data !== 'object') {
+        return;
+      }
+
+      const message = event.data;
+
+      // Check if this is an MCP UI protocol message
+      if (message.type === 'tool') {
+        handleToolMessage(message, event);
+      }
+    });
+
+    // Handle tool execution requests from UI iframes
+    function handleToolMessage(message, event) {
+      const { messageId, payload } = message;
+
+      if (!payload || !payload.toolName) {
+        console.error('Invalid tool message: missing toolName', message);
+        return;
+      }
+
+      const { toolName, params } = payload;
+
+      // Get the currently selected server
+      const selectedServer = document.getElementById('server-select')?.value;
+      if (!selectedServer) {
+        console.error('No server selected');
+        sendToolResponse(event.source, messageId, { error: 'No server selected' });
+        return;
+      }
+
+      // Send acknowledgment if messageId is provided
+      if (messageId) {
+        sendToolAcknowledgment(event.source, messageId);
+      }
+
+      // Execute the tool
+      executeToolFromIframe(selectedServer, toolName, params || {}, messageId, event.source);
+    }
+
+    // Send acknowledgment to iframe
+    function sendToolAcknowledgment(iframeWindow, messageId) {
+      iframeWindow.postMessage({
+        type: 'tool_ack',
+        messageId: messageId
+      }, '*');
+    }
+
+    // Send response to iframe
+    function sendToolResponse(iframeWindow, messageId, response) {
+      iframeWindow.postMessage({
+        type: 'tool_response',
+        messageId: messageId,
+        response: response
+      }, '*');
+    }
+
+    // Execute tool via fetch
+    function executeToolFromIframe(serverName, toolName, params, messageId, iframeWindow) {
+      fetch('/mcp_inspector/operations/execute_tool', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: new URLSearchParams({
+          server_name: serverName,
+          tool_name: toolName,
+          arguments: JSON.stringify(params)
+        })
+      })
+      .then(response => response.text())
+      .then(html => {
+        // Update the response area with Turbo Stream
+        Turbo.renderStreamMessage(html);
+
+        // Send response back to iframe if messageId provided
+        if (messageId && iframeWindow) {
+          // Note: The actual result is rendered in the response area
+          // We're just acknowledging success here
+          sendToolResponse(iframeWindow, messageId, { success: true });
+        }
+      })
+      .catch(error => {
+        console.error('Tool execution error:', error);
+        if (messageId && iframeWindow) {
+          sendToolResponse(iframeWindow, messageId, { error: error.message });
+        }
+      });
+    }
   });
 </script>

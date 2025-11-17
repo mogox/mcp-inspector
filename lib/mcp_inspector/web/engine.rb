@@ -12,9 +12,10 @@ module McpInspector
       # Set the engine root to the web directory
       config.root = File.expand_path(__dir__)
 
-      # Configure paths for controllers and views
+      # Configure paths for controllers, views, and helpers
       config.paths["app/controllers"] = "app/controllers"
       config.paths["app/views"] = "app/views"
+      config.paths["app/helpers"] = "app/helpers"
       config.paths["config/routes.rb"] = "config/routes.rb"
 
       # Enable Turbo
@@ -28,8 +29,9 @@ module McpInspector
         @connection_pool
       end
 
-      # Manually require controllers
+      # Manually require controllers and helpers
       config.before_initialize do
+        require_relative "app/helpers/mcp_inspector/web/ui_resources_helper"
         require_relative "app/controllers/mcp_inspector/web/application_controller"
         require_relative "app/controllers/mcp_inspector/web/dashboard_controller"
         require_relative "app/controllers/mcp_inspector/web/servers_controller"

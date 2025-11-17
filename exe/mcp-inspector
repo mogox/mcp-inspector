@@ -4,7 +4,7 @@
 require_relative "../lib/mcp_inspector"
 
 begin
-  MCPInspector::CLI.start(ARGV)
+  McpInspector::CLI.start(ARGV)
 rescue Interrupt
   puts "\nInterrupted"
   exit(130)

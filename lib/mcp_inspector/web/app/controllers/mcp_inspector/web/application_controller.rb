@@ -7,6 +7,8 @@ module McpInspector
 
       layout "mcp_inspector/web/application"
 
+      helper McpInspector::Web::UiResourcesHelper
+
       private
 
       def config_manager

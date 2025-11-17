@@ -1,0 +1,89 @@
+<%
+  # Extract UI resource data
+  resource_uri = ui_resource_uri(ui_resource)
+  mime_type = ui_resource_mime_type(ui_resource)
+  render_mode = ui_resource_render_mode(ui_resource)
+  content = ui_resource_content(ui_resource)
+  iframe_id = ui_resource_iframe_id(ui_resource)
+%>
+
+<div class="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+  <!-- UI Resource Header -->
+  <div class="mb-3 border-b border-gray-200 pb-2">
+    <div class="flex items-center justify-between">
+      <h4 class="text-sm font-semibold text-gray-900"><%= resource_uri %></h4>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+        UI Resource
+      </span>
+    </div>
+    <p class="text-xs text-gray-500 mt-1">MIME Type: <%= mime_type %></p>
+  </div>
+
+  <!-- UI Resource Content -->
+  <div class="ui-resource-container">
+    <% case render_mode %>
+    <% when :raw_html %>
+      <!-- Raw HTML: Render in iframe with srcdoc -->
+      <div class="aspect-video bg-gray-50 rounded border border-gray-200">
+        <iframe
+          id="<%= iframe_id %>"
+          class="w-full h-full rounded"
+          sandbox="allow-scripts allow-same-origin allow-forms"
+          srcdoc="<%= ERB::Util.html_escape(content) %>"
+          title="<%= resource_uri %>"
+        ></iframe>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">
+        Rendering raw HTML content in sandboxed iframe
+      </p>
+
+    <% when :external_url %>
+      <!-- External URL: Parse URI list and render in iframe with src -->
+      <% url = parse_uri_list(content) %>
+      <% if url %>
+        <div class="aspect-video bg-gray-50 rounded border border-gray-200">
+          <iframe
+            id="<%= iframe_id %>"
+            class="w-full h-full rounded"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            src="<%= url %>"
+            title="<%= resource_uri %>"
+          ></iframe>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">
+          Embedding external URL: <a href="<%= url %>" target="_blank" class="text-blue-600 hover:underline"><%= url %></a>
+        </p>
+      <% else %>
+        <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
+          <p class="text-sm text-yellow-800">No valid URL found in URI list</p>
+          <pre class="text-xs text-gray-600 mt-2"><%= content %></pre>
+        </div>
+      <% end %>
+
+    <% when :remote_dom %>
+      <!-- Remote DOM: Execute script in iframe -->
+      <div class="aspect-video bg-gray-50 rounded border border-gray-200">
+        <iframe
+          id="<%= iframe_id %>"
+          class="w-full h-full rounded"
+          sandbox="allow-scripts"
+          srcdoc="<%= ERB::Util.html_escape(generate_remote_dom_html(content)) %>"
+          title="<%= resource_uri %>"
+        ></iframe>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">
+        Rendering Remote DOM script in sandboxed iframe
+      </p>
+
+    <% else %>
+      <!-- Unknown MIME type: Display error -->
+      <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
+        <p class="text-sm text-yellow-800">Unknown UI resource MIME type: <%= mime_type %></p>
+        <details class="mt-2">
+          <summary class="text-xs text-gray-600 cursor-pointer">View raw content</summary>
+          <pre class="text-xs text-gray-600 mt-2 whitespace-pre-wrap break-words"><%= content %></pre>
+        </details>
+      </div>
+    <% end %>
+  </div>
+</div>

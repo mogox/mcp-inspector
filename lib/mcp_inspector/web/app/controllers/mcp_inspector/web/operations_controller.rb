@@ -15,6 +15,13 @@ module McpInspector
           @operation_type = "Tool Execution"
           @operation_name = tool_name
 
+          # Debug logging
+          Rails.logger.info "=" * 80
+          Rails.logger.info "Tool Execution Result:"
+          Rails.logger.info "Result class: #{@result.class}"
+          Rails.logger.info "Result: #{@result.inspect}"
+          Rails.logger.info "=" * 80
+
           respond_to do |format|
             format.turbo_stream { render "mcp_inspector/web/operations/result" }
             format.html do

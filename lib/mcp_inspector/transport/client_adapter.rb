@@ -144,13 +144,16 @@ module McpInspector
       def normalize_response(response)
         case response
         when Hash
-          # Check if it's a hash with a "tools", "resources", or "prompts" key
+          # Check if it's a hash with a "tools", "resources", "prompts", or "content" key
           if response.key?(:tools) || response.key?("tools")
             normalize_response(response[:tools] || response["tools"])
           elsif response.key?(:resources) || response.key?("resources")
             normalize_response(response[:resources] || response["resources"])
           elsif response.key?(:prompts) || response.key?("prompts")
             normalize_response(response[:prompts] || response["prompts"])
+          elsif response.key?(:content) || response.key?("content")
+            # Tool execution responses have a content array
+            normalize_response(response[:content] || response["content"])
           else
             stringify_keys(response)
           end
