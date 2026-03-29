@@ -60,6 +60,7 @@ module McpInspector
             partial: "mcp_inspector/web/shared/error",
             locals: { error: "Server '#{@server_name}' not found in configuration" }
           )
+          return
         end
       end
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe MCPInspector::Presentation::JSONFormatter do
+RSpec.describe McpInspector::Presentation::JSONFormatter do
   let(:formatter) { described_class.new(pretty: false) }
 
   describe "#format_success" do

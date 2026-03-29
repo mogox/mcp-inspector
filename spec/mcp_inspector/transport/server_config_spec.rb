@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe MCPInspector::Transport::ServerConfig do
+RSpec.describe McpInspector::Transport::ServerConfig do
   describe "#initialize" do
     context "with valid stdio configuration" do
       let(:config) do
@@ -44,7 +44,7 @@ RSpec.describe MCPInspector::Transport::ServerConfig do
       it "raises ValidationError for missing required fields" do
         expect {
           described_class.new({})
-        }.to raise_error(MCPInspector::Transport::ServerConfig::ValidationError)
+        }.to raise_error(McpInspector::Transport::ServerConfig::ValidationError)
       end
 
       it "raises ValidationError for invalid transport" do
@@ -53,7 +53,7 @@ RSpec.describe MCPInspector::Transport::ServerConfig do
             "name" => "test",
             "transport" => "invalid"
           })
-        }.to raise_error(MCPInspector::Transport::ServerConfig::ValidationError)
+        }.to raise_error(McpInspector::Transport::ServerConfig::ValidationError)
       end
     end
   end

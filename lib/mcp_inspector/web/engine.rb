@@ -48,6 +48,7 @@ module McpInspector
         # Run cleanup every 5 minutes
         config.after_initialize do
           Thread.new do
+            Thread.current.daemon = true
             loop do
               sleep 300 # 5 minutes
               McpInspector::Web::Engine.connection_pool.cleanup_idle_connections
