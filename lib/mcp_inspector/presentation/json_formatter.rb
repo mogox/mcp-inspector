@@ -2,7 +2,7 @@
 
 require "json"
 
-module MCPInspector
+module McpInspector
   module Presentation
     class JSONFormatter < BaseFormatter
       def format_success(data, metadata = {})

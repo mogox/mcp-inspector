@@ -1,0 +1,47 @@
+<div class="space-y-4">
+  <div class="border-b border-gray-200 pb-2">
+    <h3 class="text-md font-semibold text-gray-900"><%= @operation_type %>: <%= @operation_name %></h3>
+    <div class="mt-1">
+      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+        Success
+      </span>
+    </div>
+  </div>
+
+  <div>
+    <h4 class="text-sm font-medium text-gray-700 mb-2">Result</h4>
+
+    <% if contains_ui_resources?(@result) %>
+      <!-- Render UI Resources -->
+      <div class="space-y-4">
+        <% extract_ui_resources(@result).each do |ui_resource| %>
+          <%= render partial: "mcp_inspector/web/operations/ui_resource", locals: { ui_resource: ui_resource } %>
+        <% end %>
+      </div>
+
+      <!-- Render any non-UI content if present -->
+      <% non_ui_content = extract_non_ui_content(@result) %>
+      <% unless non_ui_content.empty? %>
+        <div class="mt-4">
+          <h5 class="text-sm font-medium text-gray-700 mb-2">Additional Content</h5>
+          <div class="bg-gray-50 rounded-md p-4 max-h-96 overflow-y-auto">
+            <pre class="text-xs text-gray-900 whitespace-pre-wrap break-words"><%= JSON.pretty_generate(non_ui_content) %></pre>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- Standard result rendering for non-UI content -->
+      <div class="bg-gray-50 rounded-md p-4 max-h-96 overflow-y-auto">
+        <% if @result.is_a?(Hash) || @result.is_a?(Array) %>
+          <pre class="text-xs text-gray-900 whitespace-pre-wrap break-words"><%= JSON.pretty_generate(@result) %></pre>
+        <% else %>
+          <p class="text-sm text-gray-900"><%= @result %></p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="pt-2">
+    <p class="text-xs text-gray-500">Response received at <%= Time.current.strftime("%Y-%m-%d %H:%M:%S") %></p>
+  </div>
+</div>

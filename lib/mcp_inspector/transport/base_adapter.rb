@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MCPInspector
+module McpInspector
   module Transport
     class BaseAdapter
       class ConnectionError < Error; end

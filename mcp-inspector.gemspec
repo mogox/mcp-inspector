@@ -4,7 +4,7 @@ require_relative "lib/mcp_inspector/version"
 
 Gem::Specification.new do |spec|
   spec.name = "mcp-inspector"
-  spec.version = MCPInspector::VERSION
+  spec.version = McpInspector::VERSION
   spec.authors = ["Enrique Mogollan"]
   spec.email = ["emogollan@gmail.com"]
 
@@ -36,6 +36,11 @@ Gem::Specification.new do |spec|
   spec.add_dependency "zeitwerk", "~> 2.6"
   spec.add_dependency "ruby-mcp-client", "~> 0.7.0"
   spec.add_dependency "base64"  # Required for ruby-mcp-client in Ruby 3.4+
+
+  # Optional web interface dependencies
+  # These are required only if using MCPInspector::Web::Engine
+  spec.add_dependency "rails", ">= 7.0"
+  spec.add_dependency "turbo-rails", "~> 2.0"
   
   # Development dependencies
   spec.add_development_dependency "bundler", "~> 2.0"

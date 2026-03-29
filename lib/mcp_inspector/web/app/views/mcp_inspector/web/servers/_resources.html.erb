@@ -1,0 +1,61 @@
+<div class="space-y-4">
+  <div class="border-b border-gray-200 pb-2">
+    <h3 class="text-md font-semibold text-gray-900">Available Resources (<%= resources.length %>)</h3>
+  </div>
+
+  <% if resources.empty? %>
+    <div class="text-gray-500 text-center py-8">
+      No resources available on this server.
+    </div>
+  <% else %>
+    <div class="space-y-4">
+      <% resources.each_with_index do |resource, index| %>
+        <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+          <div class="flex justify-between items-start mb-2">
+            <div class="flex-1">
+              <h4 class="text-sm font-semibold text-gray-900 break-all"><%= resource["uri"] || resource["name"] %></h4>
+              <% if resource["name"] && resource["uri"] %>
+                <p class="text-xs text-gray-500 mt-1"><%= resource["name"] %></p>
+              <% end %>
+            </div>
+            <button onclick="expandResource('<%= index %>')"
+                    class="text-xs text-blue-600 hover:text-blue-800 ml-2">
+              Read
+            </button>
+          </div>
+
+          <% if resource["description"] %>
+            <p class="text-sm text-gray-600 mb-3"><%= resource["description"] %></p>
+          <% end %>
+
+          <% if resource["mimeType"] %>
+            <div class="mb-3">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                <%= resource["mimeType"] %>
+              </span>
+            </div>
+          <% end %>
+
+          <div id="read-resource-<%= index %>" class="hidden mt-3 pt-3 border-t border-gray-200">
+            <form data-turbo-frame="response_area" action="/mcp_inspector/operations/read_resource" method="post" class="space-y-3">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <%= hidden_field_tag :server_name, server_name %>
+              <%= hidden_field_tag :resource_uri, resource["uri"] || resource["name"] %>
+
+              <button type="submit" class="btn-primary w-full">Read Resource</button>
+            </form>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function expandResource(index) {
+    const element = document.getElementById('read-resource-' + index);
+    if (element) {
+      element.classList.toggle('hidden');
+    }
+  }
+</script>

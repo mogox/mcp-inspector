@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe MCPInspector::Data::ConfigManager do
+RSpec.describe McpInspector::Data::ConfigManager do
   let(:temp_config_file) { "/tmp/test-mcp-inspector.json" }
   let(:user_config_file) { File.expand_path("~/.mcp-inspector.json") }
   let(:project_config_file) { "./.mcp-inspector.json" }
@@ -58,7 +58,7 @@ RSpec.describe MCPInspector::Data::ConfigManager do
         
         expect {
           described_class.new(config_path: nonexistent_path)
-        }.to raise_error(MCPInspector::Data::ConfigManager::ConfigError) do |error|
+        }.to raise_error(McpInspector::Data::ConfigManager::ConfigError) do |error|
           expect(error.message).to include("No configuration file found, so I created one for you")
           expect(error.message).to include(nonexistent_path)
           expect(error.message).to include("filesystem-server")
@@ -75,7 +75,7 @@ RSpec.describe MCPInspector::Data::ConfigManager do
       it "auto-creates default user config when no path specified" do
         expect {
           described_class.new
-        }.to raise_error(MCPInspector::Data::ConfigManager::ConfigError) do |error|
+        }.to raise_error(McpInspector::Data::ConfigManager::ConfigError) do |error|
           expect(error.message).to include("No configuration file found, so I created one for you")
           expect(error.message).to include(user_config_file)
         end

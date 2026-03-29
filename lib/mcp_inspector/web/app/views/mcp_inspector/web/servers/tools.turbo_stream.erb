@@ -1,0 +1,3 @@
+<%= turbo_stream.update "response_area" do %>
+  <%= render partial: "mcp_inspector/web/servers/tools", locals: { tools: @tools, server_name: params[:id] } %>
+<% end %>

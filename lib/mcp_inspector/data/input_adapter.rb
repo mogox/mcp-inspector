@@ -2,7 +2,7 @@
 
 require "json"
 
-module MCPInspector
+module McpInspector
   module Data
     class InputAdapter
       class ValidationError < Error; end

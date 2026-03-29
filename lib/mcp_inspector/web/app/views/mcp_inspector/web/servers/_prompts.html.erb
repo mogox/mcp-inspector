@@ -1,0 +1,65 @@
+<div class="space-y-4">
+  <div class="border-b border-gray-200 pb-2">
+    <h3 class="text-md font-semibold text-gray-900">Available Prompts (<%= prompts.length %>)</h3>
+  </div>
+
+  <% if prompts.empty? %>
+    <div class="text-gray-500 text-center py-8">
+      No prompts available on this server.
+    </div>
+  <% else %>
+    <div class="space-y-4">
+      <% prompts.each do |prompt| %>
+        <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+          <div class="flex justify-between items-start mb-2">
+            <h4 class="text-sm font-semibold text-gray-900"><%= prompt["name"] %></h4>
+            <button onclick="expandPrompt('<%= prompt["name"] %>')"
+                    class="text-xs text-blue-600 hover:text-blue-800">
+              Get Prompt
+            </button>
+          </div>
+
+          <% if prompt["description"] %>
+            <p class="text-sm text-gray-600 mb-3"><%= prompt["description"] %></p>
+          <% end %>
+
+          <% if prompt["arguments"] && !prompt["arguments"].empty? %>
+            <details class="mb-3">
+              <summary class="text-xs text-gray-500 cursor-pointer hover:text-gray-700">View Arguments</summary>
+              <pre class="mt-2 bg-gray-50 rounded p-2 text-xs overflow-x-auto"><%= JSON.pretty_generate(prompt["arguments"]) %></pre>
+            </details>
+          <% end %>
+
+          <div id="get-prompt-<%= prompt["name"] %>" class="hidden mt-3 pt-3 border-t border-gray-200">
+            <form data-turbo-frame="response_area" action="/mcp_inspector/operations/get_prompt" method="post" class="space-y-3">
+              <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+              <%= hidden_field_tag :server_name, server_name %>
+              <%= hidden_field_tag :prompt_name, prompt["name"] %>
+
+              <div>
+                <label class="label" for="arguments-prompt-<%= prompt["name"] %>">Arguments (JSON)</label>
+                <textarea name="arguments"
+                          id="arguments-prompt-<%= prompt["name"] %>"
+                          class="input-field font-mono text-xs"
+                          rows="4"
+                          placeholder='{"key": "value"}'></textarea>
+                <p class="mt-1 text-xs text-gray-500">Enter prompt arguments as JSON</p>
+              </div>
+
+              <button type="submit" class="btn-primary w-full">Get Prompt</button>
+            </form>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function expandPrompt(promptName) {
+    const element = document.getElementById('get-prompt-' + promptName);
+    if (element) {
+      element.classList.toggle('hidden');
+    }
+  }
+</script>

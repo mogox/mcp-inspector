@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Quick start script for the MCP Inspector demo app
+
+set -e
+
+echo "🚀 Starting MCP Inspector Demo Application"
+echo ""
+
+# Check if database exists
+if [ ! -f "storage/development.sqlite3" ]; then
+  echo "📦 Setting up database..."
+  bin/rails db:create db:migrate
+  echo ""
+fi
+
+# Check if bundle is installed
+if ! bundle check &>/dev/null; then
+  echo "📦 Installing dependencies..."
+  bundle install
+  echo ""
+fi
+
+echo "✅ Starting Rails server..."
+echo ""
+echo "👉 Open your browser to: http://localhost:3000"
+echo "📝 The root path redirects directly to the MCP Inspector"
+echo ""
+echo "Press Ctrl+C to stop the server"
+echo ""
+
+bin/rails server

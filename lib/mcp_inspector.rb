@@ -4,9 +4,10 @@ require "zeitwerk"
 require "timeout"
 
 loader = Zeitwerk::Loader.for_gem
+loader.ignore("#{__dir__}/mcp_inspector_web.rb")
 loader.setup
 
-module MCPInspector
+module McpInspector
   class Error < StandardError; end
 end
 

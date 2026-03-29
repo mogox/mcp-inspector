@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MCPInspector
+module McpInspector
   module Data
     class OutputAdapter
       DEFAULT_FORMAT = "json"
@@ -82,10 +82,10 @@ module MCPInspector
       def create_formatter
         case format
         when "json"
-          MCPInspector::Presentation::JSONFormatter.new(pretty: pretty)
+          McpInspector::Presentation::JSONFormatter.new(pretty: pretty)
         when "terminal"
           # Placeholder for future terminal formatter
-          MCPInspector::Presentation::JSONFormatter.new(pretty: pretty)
+          McpInspector::Presentation::JSONFormatter.new(pretty: pretty)
         else
           raise ArgumentError, "Unsupported formatter: #{format}"
         end

@@ -10,3 +10,10 @@
 
 # rspec failure tracking
 .rspec_status
+
+# Inspector demo app generated files
+/inspector/log/
+/inspector/tmp/
+/inspector/storage/
+/inspector/public/assets/
+/inspector/.env

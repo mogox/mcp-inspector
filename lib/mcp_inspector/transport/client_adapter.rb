@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "mcp_client"
 
-module MCPInspector
+module McpInspector
   module Transport
     class ClientAdapter < BaseAdapter
       def initialize(timeout: 30)
@@ -132,7 +132,7 @@ module MCPInspector
       end
 
       def connect_sse
-        @client = MCPClient::ServerSSE.new(url: @server_config.url)
+        @client = MCPClient::ServerSSE.new(base_url: @server_config.url)
         @client.connect
       end
 
@@ -144,12 +144,29 @@ module MCPInspector
       def normalize_response(response)
         case response
         when Hash
-          response
+          # Check if it's a hash with a "tools", "resources", "prompts", or "content" key
+          if response.key?(:tools) || response.key?("tools")
+            normalize_response(response[:tools] || response["tools"])
+          elsif response.key?(:resources) || response.key?("resources")
+            normalize_response(response[:resources] || response["resources"])
+          elsif response.key?(:prompts) || response.key?("prompts")
+            normalize_response(response[:prompts] || response["prompts"])
+          elsif response.key?(:content) || response.key?("content")
+            # Tool execution responses have a content array
+            normalize_response(response[:content] || response["content"])
+          else
+            stringify_keys(response)
+          end
         when Array
+          return [] if response.empty?
+          
           # Handle arrays of MCPClient objects
           if response.first.respond_to?(:name) && response.first.respond_to?(:description)
             # Array of Tool, Resource, or Prompt objects
             response.map { |item| normalize_mcp_object(item) }
+          elsif response.first.is_a?(Hash)
+            # Array of hashes - convert keys to strings
+            response.map { |item| stringify_keys(item) }
           else
             response
           end
@@ -159,21 +176,47 @@ module MCPInspector
       end
 
       def normalize_mcp_object(obj)
+        # Safely extract name and description
+        name = obj.respond_to?(:name) ? obj.name : nil
+        description = obj.respond_to?(:description) ? obj.description : nil
+        
         base_data = {
-          name: obj.name,
-          description: obj.description
+          name: name,
+          description: description
         }
         
-        # Add schema for tools
+        # Add schema for tools (could be :schema, :inputSchema, or :input_schema)
         if obj.respond_to?(:schema) && obj.schema
           base_data[:inputSchema] = obj.schema
+        elsif obj.respond_to?(:inputSchema) && obj.inputSchema
+          base_data[:inputSchema] = obj.inputSchema
+        elsif obj.respond_to?(:input_schema) && obj.input_schema
+          base_data[:inputSchema] = obj.input_schema
         end
         
         # Add other properties that might exist
         base_data[:uri] = obj.uri if obj.respond_to?(:uri)
         base_data[:mimeType] = obj.mimeType if obj.respond_to?(:mimeType)
+        base_data[:mime_type] = obj.mime_type if obj.respond_to?(:mime_type)
         
-        base_data
+        # Convert symbol keys to string keys for view compatibility
+        stringify_keys(base_data)
+      end
+
+      def stringify_keys(hash)
+        return hash unless hash.is_a?(Hash)
+        
+        hash.each_with_object({}) do |(key, value), result|
+          string_key = key.to_s
+          result[string_key] = case value
+          when Hash
+            stringify_keys(value)
+          when Array
+            value.map { |item| item.is_a?(Hash) ? stringify_keys(item) : item }
+          else
+            value
+          end
+        end
       end
 
       def detect_capabilities
